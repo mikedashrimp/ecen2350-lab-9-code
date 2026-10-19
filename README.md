@@ -117,7 +117,10 @@ state_t next_state;
                     next_state = WAIT;
 
                 else if (ALUx)
-                    
+                    ALUx_val = ALUx;
+                    mem_array[4] = ALUx_val;
+
+                    next_state = WAIT;
 
             default:
                 next_state = WAIT;
