@@ -22,7 +22,7 @@
 module ALU_block(
     input logic [10:0] a,
     input logic [10:0] b,
-    input logic [10:0] x,
+    output logic [10:0] x,
     input logic [1:0] op
     );
     always_comb begin
