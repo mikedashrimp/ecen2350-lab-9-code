@@ -19,7 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-modulw ALU_block(
+module ALU_block(
   input logic [10:0] a,
   input logic [10:0] b,
   input logic [10:0] x,
