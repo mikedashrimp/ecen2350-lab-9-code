@@ -1,1 +1,62 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 10/17/2026 02:34:29 AM
+// Design Name: 
+// Module Name: memory inputs
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
 
+
+module memory_inputs(
+    inout logic [10:0] a,
+    inout logic [10:0] b,
+    inout logic [1:0] op,
+    inout logic [10:0] ALUx,
+    
+    input logic clk, reset,
+
+    logic [10:0] mem_array [0:3] = '{4{11'b00000000000}};
+    );
+
+  typedef enum logic [1:0] {
+      //add state stuff
+      WAIT,
+      INPUT_a,
+      INPUT_b,
+      INPUT_op
+      INPUT_ALUx
+  }state_t;
+
+state_t state = INPUT_a;
+state_t next_state;
+
+logic [size_n-1:0] mem [0:size_m];
+
+    always_ff @(posedge clk) begin   //more state stuff
+        if (reset || state == WAIT)
+            counter <= 0;
+        else
+            counter <= counter + 1;
+    end
+
+    always_ff @(posedge clk) begin   //more state stuff
+        state <= next_state;
+    end
+
+
+    always_comb begin
+        // put code here idk
+endmodule
