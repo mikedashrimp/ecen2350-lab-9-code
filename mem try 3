@@ -34,8 +34,8 @@ module memory_inputs
         
 
     );
-reg [10:0] mem_a, mem_b, mem_ALUx;
-reg [1:0] mem_op;
+logic [10:0] mem_a, mem_b, mem_ALUx;
+logic [1:0] mem_op;
 assign a = mem_a;
 assign b = mem_b;
 assign ALUx = mem_ALUx;
