@@ -67,7 +67,7 @@ state_t next_state;
                 else if (a)
                     a_count = 0;
                     a_val = 0;
-                    while (count < 3 || !op)
+                    while (count == 2 || !op)
                         a_val= (a_val*10) + a;
                             //array stuff
                         mem_array[0] = a_val;
