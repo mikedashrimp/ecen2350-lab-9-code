@@ -22,14 +22,15 @@
 
 module memory_inputs
     (
-        input logic clk, reset, 
+        input logic clk, 
+        input logic reset, 
         input logic [1:0] address,
         input logic [10:0] data,
         input logic [10:0] ALU_result,
         output logic signed [10:0] a,
         output logic signed [10:0] b,
         output logic [1:0] op,
-        output logic signed [10:0] ALUx,
+        output logic signed [10:0] ALUx
     );
     logic [10:0] mem_a, mem_b, mem_ALUx;
     logic [1:0] mem_op;
@@ -39,7 +40,7 @@ module memory_inputs
     assign op = mem_op;
     
     
-    always_ff @(posedge clk || posedge reset) begin
+    always_ff @(posedge clk or posedge reset) begin
         if (reset) begin
             mem_a = 0;
             mem_b = 0;
