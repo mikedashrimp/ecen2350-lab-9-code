@@ -20,15 +20,20 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module memory_inputs(
-    inout logic [10:0] a,
-    inout logic [10:0] b,
-    inout logic [1:0] op,
-    inout logic [10:0] ALUx,
-    
-    input logic clk, reset,
+module memory_inputs
+    #(
+        parameter  size_n = 4,
+                   size_m = 11 
+    )
 
-    logic [10:0] mem_array [0:3] = '{4{11'b00000000000}};
+    (
+        inout logic signed [10:0] a,
+        inout logic signed [10:0] b,
+        inout logic [1:0] op,
+        inout logic signed [10:0] ALUx,
+        
+        input logic clk, reset,
+
     );
 
   typedef enum logic [1:0] {
@@ -56,6 +61,7 @@ logic [size_n-1:0] mem [0:size_m];
         state <= next_state;
     end
 
+endmodule
 
     always_comb begin
         // put code here idk
