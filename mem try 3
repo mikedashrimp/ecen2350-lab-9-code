@@ -22,7 +22,6 @@
 
 module memory_inputs
     (
-
         input logic clk, reset, 
         input logic [1:0] address,
         input logic [10:0] data,
@@ -31,38 +30,29 @@ module memory_inputs
         output logic signed [10:0] b,
         output logic [1:0] op,
         output logic signed [10:0] ALUx,
-        
-
     );
-logic [10:0] mem_a, mem_b, mem_ALUx;
-logic [1:0] mem_op;
-assign a = mem_a;
-assign b = mem_b;
-assign ALUx = mem_ALUx;
-assign op = mem_op;
-
-
-always_ff @(posedge clk || posedge reset) begin
-  if (reset) begin
-    mem_a = 0;
-    mem_b = 0;
-    mem_ALUx = 0;
-    mem_op = 0;
-  end
-
-  else
-    case (address)
-        0: mem_a = data;
-        1: mem_b = data;
-        2: mem_op = data [1:0];
-        3: mem_ALUx = ALU_result;
-    endcase
+    logic [10:0] mem_a, mem_b, mem_ALUx;
+    logic [1:0] mem_op;
+    assign a = mem_a;
+    assign b = mem_b;
+    assign ALUx = mem_ALUx;
+    assign op = mem_op;
     
     
-  end
-
+    always_ff @(posedge clk || posedge reset) begin
+        if (reset) begin
+            mem_a = 0;
+            mem_b = 0;
+            mem_ALUx = 0;
+            mem_op = 0;
+        end
+    
+        else
+            case (address)
+                0: mem_a = data;
+                1: mem_b = data;
+                2: mem_op = data [1:0];
+                3: mem_ALUx = ALU_result;
+            endcase
+        end
 endmodule
-
-
-
-
