@@ -36,19 +36,19 @@ module memory_inputs
 
     );
 
-  typedef enum logic [1:0] {
+  typedef enum logic [2:0] {
       //add state stuff
       WAIT,
       INPUT_a,
       INPUT_b,
-      INPUT_op
+      INPUT_op,
       INPUT_ALUx
   }state_t;
 
 state_t state = INPUT_a;
 state_t next_state;
 
-logic [size_n-1:0] mem [0:size_m];
+logic [size_n-1:0] mem [0:size_m-1];
 
     always_ff @(posedge clk) begin   //more state stuff
         if (reset || state == WAIT)
