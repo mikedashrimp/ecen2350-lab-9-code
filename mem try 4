@@ -38,15 +38,21 @@ module memory_inputs#(
         output logic signed [WIDTH-1:0] output
 
     );
+    
+    typedef enum logic [1:0] {
+            OUT_a = 2'b00,
+            OUT_b = 2'b01,
+            OUT_result = 2'b10,
+        }out_code;
+        
 
     typedef enum logic [1:0] {
-        INPUT_a,
-        INPUT_b,
-        INPUT_op
-        INPUT_ALUx
-    }state_t;
+        INPUT_a = 2'b00,
+        INPUT_b = 2'b01,
+        INPUT_op = 2'b10,
+        CLEAR = = 2'b11
+    }address_code;
+
     
-    state_t state = INPUT_a;
-    state_t next_state;
 
 endmodule
