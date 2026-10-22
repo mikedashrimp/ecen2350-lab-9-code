@@ -59,7 +59,7 @@ module memory_block#(
     initial begin
         a = 0;
         b = 0;
-        out = 0;
+    //    out = 0;
         op = 0;
     end
 
@@ -69,7 +69,7 @@ module memory_block#(
             case (address)
                 INPUT_a: a <= (a*10)+data;
                 INPUT_b: b <= (b*10)+data;
-                INPUT_op: //we need to convert from our input data (the 4 bit numbers we get from the keypad) to the 2 bit definitions I set for addition, subtraction, multiplication, and division.
+                INPUT_op: begin //we need to convert from our input data (the 4 bit numbers we get from the keypad) to the 2 bit definitions I set for addition, subtraction, multiplication, and division.
                     if (4'b1100) // keypad bits for addition
                         op <= 2'b00;
                     else if (4'b1101) // kaypad bits for subtraction
@@ -78,13 +78,15 @@ module memory_block#(
                         op <= 2'b10;
                     else if (4'b1111) // kaypad bits for division
                         op <= 2'b11;
+                end
                 CLEAR : begin//clear everything (i think) like the C button on a normal calculator
                     a <= '0;
                     b <= '0;
                     out <= '0;
                     op <= 2'b00;
                 end
-                default : ;
+                default : begin
+                end
             endcase
         end
     end
@@ -93,7 +95,7 @@ module memory_block#(
             OUT_a: out = a;
             OUT_b: out = b;
             OUT_result: out = ALU_result;
-            default : out = 0;
+            default : out = '0;
         endcase
     end
 
