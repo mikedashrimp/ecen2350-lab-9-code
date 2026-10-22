@@ -47,7 +47,7 @@ module mem_tb;
  
  //.a(a), .b(a), .op(op)
 
-    memory_block dit (.write(write), .address(address), .data(data), .ALU_result(ALU_result), .out_type( out_type), .out(out), .clk(clk), .a(a), .b(a), .op(op));
+    memory_block dit (.write(write), .address(address), .data(data), .ALU_result(ALU_result), .out_type( out_type), .out(out), .clk(clk), .a(a), .b(b), .op(op));
     
    
     
