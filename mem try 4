@@ -22,7 +22,8 @@
 typedef enum logic [1:0] {
     OUT_a = 2'b00,
     OUT_b = 2'b01,
-    OUT_result = 2'b10
+    OUT_op = 2'b10,
+    OUT_result = 2'b11
 }out_code;
     
 
@@ -86,19 +87,19 @@ module memory_block#(
                     out <= '0;
                     op <= 2'b00;
                 end
-                default : begin
+                default : begin  // ideally this is when equil sign is pressed
                 end
             endcase
         end
     end
     always_comb begin
         case (out_type)
-            OUT_a: out = a;
-            OUT_b: out = b;
+            OUT_a : out = a;
+            OUT_b : out = b;
+            OUT_op : out = op;
             OUT_result: out = ALU_result;
             default : out = '0;
         endcase
     end
 
 endmodule
-
