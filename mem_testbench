@@ -43,7 +43,7 @@ module mem_tb;
 //    logic [10:0] x;
 //    logic [1:0] op;
 
-    ALU_block dut (.a(a), .b(a), .op(op), .x(ALU_result));
+    ALU_block dut (.a(a), .b(b), .op(op), .x(ALU_result));
  
  //.a(a), .b(a), .op(op)
 
