@@ -26,12 +26,12 @@ typedef enum logic [1:0] {
 }out_code;
     
 
-typedef enum logic [1:0] {
-    INPUT_a = 2'b00,
-    INPUT_b = 2'b01,
-    INPUT_op = 2'b10,
-    CLEAR = 2'b11
-}address_code;
+//typedef enum logic [1:0] {
+//    INPUT_a = 2'b00,
+//    INPUT_b = 2'b01,
+//    INPUT_op = 2'b10,
+//    CLEAR = 2'b11
+//}address_code;
 
 
 module memory_block#(
@@ -57,19 +57,19 @@ module memory_block#(
 
 
     initial begin
-        a = 0;
-        b = 0;
+        a = 11'b00000000000;
+        b =  11'b00000000000;
     //    out = 0;
-        op = 0;
+        op = 2'b00;
     end
 
     always_ff @(posedge clk) begin
         
         if (write == 1) begin
             case (address)
-                INPUT_a: a <= (a*10)+data;
-                INPUT_b: b <= (b*10)+data;
-                INPUT_op: begin //we need to convert from our input data (the 4 bit numbers we get from the keypad) to the 2 bit definitions I set for addition, subtraction, multiplication, and division.
+                2'b00: a <= (a*10)+data;
+                2'b01: b <= (b*10)+data;
+                2'b10: begin //we need to convert from our input data (the 4 bit numbers we get from the keypad) to the 2 bit definitions I set for addition, subtraction, multiplication, and division.
                     if (4'b1100) // keypad bits for addition
                         op <= 2'b00;
                     else if (4'b1101) // kaypad bits for subtraction
@@ -79,7 +79,7 @@ module memory_block#(
                     else if (4'b1111) // kaypad bits for division
                         op <= 2'b11;
                 end
-                CLEAR : begin//clear everything (i think) like the C button on a normal calculator
+                2'b11 : begin//clear everything (i think) like the C button on a normal calculator
                     a <= '0;
                     b <= '0;
                     out <= '0;
@@ -100,3 +100,4 @@ module memory_block#(
     end
 
 endmodule
+
