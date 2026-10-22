@@ -34,7 +34,7 @@ typedef enum logic [1:0] {
 }address_code;
 
 
-module memory_inputs#(
+module memory_block#(
     parameter int WIDTH = 11 
 )
     (
