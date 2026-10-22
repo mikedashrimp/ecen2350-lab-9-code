@@ -1,1 +1,7 @@
 
+
+
+
+
+ ALU_block dut (.a(a), .b(b), .op(op), .x(ALU_result));
+
