@@ -21,9 +21,12 @@
 
 
 module ALU_tb;
-    logic [10:0] a;
-    logic [10:0] b;
-    logic [10:0] x;
+
+    parameter int WIDTH = 11;
+
+    logic [WIDTH-1:0] a;
+    logic [WIDTH-1:0] b;
+    logic [WIDTH-1:0] x;
     logic [1:0] op;
 
      ALU_block dut (.a(a), .b(b), .op(op), .x(x));
