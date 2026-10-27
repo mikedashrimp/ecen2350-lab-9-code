@@ -19,3 +19,46 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+module Display_block(
+        input logic clk,
+        input logic signed [10:0] number, //11 bit input a, b, or ALU_result
+    
+    
+        output logic AN0,
+        output logic AN1,
+        output logic AN2,
+        output logic AN3,
+    );
+    
+    initial begin
+        number = 11'b00000000000;
+        
+    end
+
+
+    tens = number % 100;
+    ones = tens % 10;
+    if (number <= 0) begin
+        AN0 = - ;
+    else
+
+    end
+
+    if (number >= 100 or number <= -100) begin
+        AN1 = (number - (tens))/100;
+        AN2 = (tens - (ones))/10;
+        AN3 = ones;
+    else if (number <= 100 or number >= -100)
+        AN1 = 0;
+        AN2 = (number - ones)/10;
+        AN3 = ones;
+    else
+        AN1 = 0;
+        AN2 = 0;
+        AN3 = 0;
+
+    end
+
+    always_ff @(posedge clk) begin
+        if (number != 0) begin
+            case ()
