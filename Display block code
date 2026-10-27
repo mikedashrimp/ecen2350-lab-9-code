@@ -59,6 +59,99 @@ module Display_block(
 
     end
 
+        case (AN1) begin
+                0 : 
+                        SEGa = 0;
+                        SEGb = 0;
+                        SEGc = 0;
+                        SEGd = 0;
+                        SEGe = 0;
+                        SEGf = 0;
+                        SEGg = 1;
+                        SEGdp = 1;
+                1 : 
+                        SEGa = 1;
+                        SEGb = 0;
+                        SEGc = 0;
+                        SEGd = 1;
+                        SEGe = 1;
+                        SEGf = 1;
+                        SEGg = 1;
+                        SEGdp = 1;
+                2 : 
+                        SEGa = 0;
+                        SEGb = 0;
+                        SEGc = 1;
+                        SEGd = 0;
+                        SEGe = 0;
+                        SEGf = 1;
+                        SEGg = 0;
+                        SEGdp = 1;
+                3 : 
+                        SEGa = 0;
+                        SEGb = 0;
+                        SEGc = 0;
+                        SEGd = 0;
+                        SEGe = 1;
+                        SEGf = 1;
+                        SEGg = 0;
+                        SEGdp = 1;
+                4 : 
+                        SEGa = 1;
+                        SEGb = 0;
+                        SEGc = 0;
+                        SEGd = 1;
+                        SEGe = 1;
+                        SEGf = 0;
+                        SEGg = 0;
+                        SEGdp = 1;
+                5 : 
+                        SEGa = 0;
+                        SEGb = 1;
+                        SEGc = 0;
+                        SEGd = 0;
+                        SEGe = 1;
+                        SEGf = 0;
+                        SEGg = 0;
+                        SEGdp = 1;
+                6 : 
+                        SEGa = 0;
+                        SEGb = 1;
+                        SEGc = 0;
+                        SEGd = 0;
+                        SEGe = 0;
+                        SEGf = 0;
+                        SEGg = 0;
+                        SEGdp = 1;
+                7 : 
+                        SEGa = 0;
+                        SEGb = 0;
+                        SEGc = 0;
+                        SEGd = 1;
+                        SEGe = 1;
+                        SEGf = 1;
+                        SEGg = 1;
+                        SEGdp = 1;
+                8 : 
+                        SEGa = 0;
+                        SEGb = 0;
+                        SEGc = 0;
+                        SEGd = 0;
+                        SEGe = 0;
+                        SEGf = 0;
+                        SEGg = 0;
+                        SEGdp = 1;
+                9 : 
+                        SEGa = 0;
+                        SEGb = 0;
+                        SEGc = 0;
+                        SEGd = 0;
+                        SEGe = 1;
+                        SEGf = 0;
+                        SEGg = 0;
+                        SEGdp = 1;
+
+
     always_ff @(posedge clk) begin
         if (number != 0) begin
             case ()
