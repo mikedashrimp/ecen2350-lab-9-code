@@ -13,3 +13,6 @@ module Display_block(
 
 //format this better
 
+[8:0] SEG [6:0]
+
+//list how to display each digit for the display
