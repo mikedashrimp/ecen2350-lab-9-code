@@ -1,1 +1,13 @@
+module Display_block(
+        input logic clk,
+        input logic signed [10:0] number, //11 bit input a, b, or ALU_result
+    
+    
+        output logic [3:0] AN,
+        output logic [6:0] ,
+        output logic AN2,
+        output logic AN3,
+    );
+
+
 
