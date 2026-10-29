@@ -4,7 +4,7 @@ module Display_block(
     
     
         output logic [3:0] AN,
-        output logic [6:0] SEG
+        output logic [7:0] SEG
         );
         
         logic negative;
@@ -12,8 +12,10 @@ module Display_block(
 
         always_comb begin(
         if (number < 0) begin
+                negative = 1;
                 absval_num = -number;
         else if (number > 0)
+                negative = 0;
                 absval_num = number;
         end
         )
