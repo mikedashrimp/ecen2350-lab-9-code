@@ -41,7 +41,7 @@ module Display_block(
 
         always_comb begin(
                 hundreds = (absval_num - absval_num % 100)/100; 
-                tens = 
+                tens = (absval_num % 100 - absval_num % 10)/10;
                 ones = absval_num % 10;
         )
 
