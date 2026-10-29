@@ -74,6 +74,17 @@ module Display_block(
 
         logic [1:0] digit;
 
+        typedef enum logic [2:0] {
+                dig_off = 3'b000,
+                AN0_on = 3'b001,
+                AN0_off = 3'b010,
+                AN1_on = 3'b011,
+                AN1_off = 3'b100,
+                AN2_on = 3'b101,
+                AN2_off = 3'b110,
+                AN3_on = 3'b111
+        }disp_order;
+
         
                 
 
