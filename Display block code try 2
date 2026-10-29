@@ -27,6 +27,7 @@ endmodule
 
 module Display_block(
         input logic clk,
+        input logic reset,
         input logic signed [10:0] number, //11 bit input a, b, or ALU_result
     
     
@@ -71,6 +72,7 @@ module Display_block(
                 tens = (absval_num % 100 - absval_num % 10)/10;
                 ones = absval_num % 10;
         )
+        end
 
         logic [1:0] digit;
 
@@ -83,9 +85,45 @@ module Display_block(
                 AN2_on = 3'b101,
                 AN2_off = 3'b110,
                 AN3_on = 3'b111
-        }disp_order;
+        }disp_state;
 
-        
+        disp_state current_state, next_state;
+
+        always_ff (posedge clk) begin
+                if (reset) begin
+                        current_state <= dig_off;
+                else
+                        current_state <= next_state;
+                end
                 
+        end
 
+        always_comb begin
+                case (current_state)
+                        dig_off : begin
+                                
+                        end
+                        AN0_on : begin
+                                
+                        end
+                        AN0_off : begin
+                                
+                        end
+                        AN1_on : begin
+                                
+                        end
+                        AN1_off : begin
+                                
+                        end
+                        AN2_on : begin
+                                
+                        end
+                        AN2_off : begin
+                                
+                        end
+                        AN3_on : begin
+                                
+                        end
+                endcase
+        end
 
