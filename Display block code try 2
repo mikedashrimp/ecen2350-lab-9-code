@@ -20,7 +20,7 @@ module Display_block(
         end
         )
 
-        logic [7:0] SEG [9:0] = {
+        logic [7:0] SEG [11:0] = {
         8'b0000_0011, // display 0
         8'b1001_1111, // display 1
         8'b0010_0101, // display 2
@@ -35,9 +35,14 @@ module Display_block(
         8'b1111_1111  // blank
         };
 
+        logic hundreds;
+        logic tens;
+        logic ones;
 
-//format this better
+        always_comb begin(
+                hundreds = (absval_num - absval_num % 100)/100; 
+                tens = 
+                ones = absval_num % 10;
+        )
 
-[8:0] SEG [6:0]
 
-//list how to display each digit for the display
