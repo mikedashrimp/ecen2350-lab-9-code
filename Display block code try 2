@@ -4,11 +4,19 @@ module Display_block(
     
     
         output logic [3:0] AN,
-        output logic [6:0] ,
-        output logic AN2,
-        output logic AN3,
-    );
+        output logic [6:0] SEG
+        );
+        
+        logic negative;
+        logic absval_num;
 
+        always_comb begin(
+        if (number < 0) begin
+                absval_num = -number;
+        else if (number > 0)
+                absval_num = number;
+        end
+        )
 
 
 //format this better
