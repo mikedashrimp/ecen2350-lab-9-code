@@ -4,7 +4,7 @@ module Display_block(
     
     
         output logic [3:0] AN,
-        output logic [7:0] SEG
+        output logic [7:0] SEG //{A, B, C, D, E, F, G, DP}
         );
         
         logic negative;
@@ -19,6 +19,21 @@ module Display_block(
                 absval_num = number;
         end
         )
+
+        logic [7:0] SEG [9:0] = {
+        8'b0000_0011, // display 0
+        8'b1001_1111, // display 1
+        8'b0010_0101, // display 2
+        8'b0000_1101, // display 3
+        8'b1001_1001, // display 4
+        8'b0100_1001, // display 5
+        8'b0100_0001, // display 6
+        8'b0001_1111, // display 7
+        8'b0000_0001, // display 8
+        8'b0000_1001, // display 9
+        8'b1111_1101, // negative sign
+        8'b1111_1111  // blank
+        };
 
 
 //format this better
