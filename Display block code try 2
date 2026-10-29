@@ -20,7 +20,7 @@ module Display_block(
         end
         )
 
-        logic [7:0] SEG [11:0] = {
+        logic [7:0] SEG_LUT [11:0] = {
         8'b0000_0011, // display 0
         8'b1001_1111, // display 1
         8'b0010_0101, // display 2
@@ -44,5 +44,31 @@ module Display_block(
                 tens = (absval_num % 100 - absval_num % 10)/10;
                 ones = absval_num % 10;
         )
+
+        logic [1:0] digit;
+
+        always_comb begin
+                case (digit)
+                        2'b00 : begin // left motst digit (sign digit)
+                                AN = 4'b0111;
+                                SEG = negative ? SEG_LUT[10] : SEG_LUT[11];
+                        end
+                        2'b01 : begin // hundreds digit
+                                AN = 4'b1011;
+                                SEG = SEG_LUT[hundreds];
+                        end
+
+                        2'b10 : begin // tens digit
+                                AN = 4'b1101;
+                                SEG = SEG_LUT[tens];
+                        end
+
+                        2'b11 : begin // ones digit
+                                AN = 4'b1110;
+                                SEG = SEG_LUT[ones];
+                        end
+                end
+        end
+                
 
 
