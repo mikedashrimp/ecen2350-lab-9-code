@@ -113,45 +113,44 @@ module Display_block(
 
         always_ff @(posedge clk) begin
             if (reset) begin
-                    current_state <= dig_off;
+                current_state <= dig_off;
             end                    
             else begin
-                    current_state <= next_state;
+                current_state <= next_state;
             end
         end
 
         always_comb begin
-                case (current_state)
-                        dig_off : begin
-                                
-                        end
-                        AN0_on : begin
-                                AN = 4'b0111;
-                                SEG = negative ? SEG_LUT[10] : SEG_LUT[11];
-                        end
-                        AN0_off : begin
-                                
-                        end
-                        AN1_on : begin
-                                AN = 4'b1011;
-                                SEG = SEG_LUT[hundreds];
-                        end
-                        AN1_off : begin
-                                
-                        end
-                        AN2_on : begin
-                                AN = 4'b1101;
-                                SEG = SEG_LUT[tens];
-                        end
-                        AN2_off : begin
-                                
-                        end
-                        AN3_on : begin
-                                AN = 4'b1110;
-                                SEG = SEG_LUT[ones];
-                        end
-                endcase
+            case (current_state)
+                dig_off : begin
+                        
+                end
+                AN0_on : begin
+                    AN = 4'b0111;
+                    SEG = negative ? SEG_LUT[10] : SEG_LUT[11];
+                end
+                AN0_off : begin
+                        
+                end
+                AN1_on : begin
+                    AN = 4'b1011;
+                    SEG = SEG_LUT[hundreds];
+                end
+                AN1_off : begin
+                        
+                end
+                AN2_on : begin
+                    AN = 4'b1101;
+                    SEG = SEG_LUT[tens];
+                end
+                AN2_off : begin
+                        
+                end
+                AN3_on : begin
+                    AN = 4'b1110;
+                    SEG = SEG_LUT[ones];
+                end
+            endcase
         end
-    
 endmodule
 
