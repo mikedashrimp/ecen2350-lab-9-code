@@ -58,67 +58,88 @@ module Display_block(
         );
         
         logic negative;
-        logic absval_num;
+        logic [10:0] absval_num;
+        
+        logic [3:0] hundreds;
+        logic [3:0] tens;
+        logic [3:0] ones;
+        
+        logic change_state;
+        logic [15:0] count = 0;
+
+
 
         always_comb begin
         if (number < 0) begin
-            negative = 1;
+            negative = 1'b1;
             absval_num = -number;
         end
-        else if (number > 0)
-            negative = 0;
+        else begin
+            negative = 1'b0;
             absval_num = number;
         end
+        end
         
-
-        logic [7:0] SEG_LUT [11:0] = {
-        8'b0000_0011, // display 0
-        8'b1001_1111, // display 1
-        8'b0010_0101, // display 2
-        8'b0000_1101, // display 3
-        8'b1001_1001, // display 4
-        8'b0100_1001, // display 5
-        8'b0100_0001, // display 6
-        8'b0001_1111, // display 7
-        8'b0000_0001, // display 8
-        8'b0000_1001, // display 9
-        8'b1111_1101, // negative sign
-        8'b1111_1111  // blank
-        };
-
-        logic hundreds;
-        logic tens;
-        logic ones;
-
         always_comb begin
             hundreds = (absval_num - absval_num % 100)/100; 
             tens = (absval_num % 100 - absval_num % 10)/10;
             ones = absval_num % 10;
         end
 
+        logic [7:0] SEG_LUT [11:0] = {
+        
+                // BEHOLD, a mark of my past pain and suffering
+//        8'b0000_0011, // display 0
+//        8'b1001_1111, // display 1
+//        8'b0010_0101, // display 2
+//        8'b0000_1101, // display 3
+//        8'b1001_1001, // display 4
+//        8'b0100_1001, // display 5
+//        8'b0100_0001, // display 6
+//        8'b0001_1111, // display 7
+//        8'b0000_0001, // display 8
+//        8'b0000_1001, // display 9
+//        8'b1111_1101, // negative sign
+//        8'b1111_1111  // blank
+
+            8'b1111_1111,  // blank
+            8'b1111_1101, // negative sign
+            8'b0000_1001, // display 9
+            8'b0000_0001, // display 8
+            8'b0001_1111, // display 7
+            8'b0100_0001, // display 6
+            8'b0100_1001, // display 5
+            8'b1001_1001, // display 4
+            8'b0000_1101, // display 3
+            8'b0010_0101, // display 2
+            8'b1001_1111, // display 1
+            8'b0000_0011 // display 0
+        };
+
+        
+
         logic [1:0] digit;
 
         typedef enum logic [2:0] {
-            dig_off = 3'b000,
-            AN0_on = 3'b001,
-            AN0_off = 3'b010,
-            AN1_on = 3'b011,
-            AN1_off = 3'b100,
-            AN2_on = 3'b101,
-            AN2_off = 3'b110,
-            AN3_on = 3'b111
+            dig_off,
+            AN0_on,
+            AN0_off,
+            AN1_on,
+            AN1_off,
+            AN2_on,
+            AN2_off,
+            AN3_on
         }disp_state;
 
         disp_state current_state, next_state;
         
-        logic [7:0] count = 0;
 
         always_ff @(posedge clk) begin
             if (reset) begin
                 current_state <= dig_off;
             end                    
-            else begin
-                //count <= count + 1;
+           else begin
+                count <= count + 1;
                 current_state <= next_state;
             end
         end
@@ -126,6 +147,9 @@ module Display_block(
         assign change_state = (count == '1);
         
         always_comb begin
+        
+            next_state = current_state;
+        
             if (change_state) begin
                 case (current_state)
                     dig_off : next_state = AN0_on;
@@ -136,42 +160,36 @@ module Display_block(
                     AN2_on : next_state = AN2_off;
                     AN2_off : next_state = AN3_on;
                     AN3_on : next_state = dig_off;
+                    default : next_state = dig_off;
                 endcase
             end
         end
 
         always_comb begin
             case (current_state)
-                dig_off : begin
-                
+                dig_off, AN0_off, AN1_off, AN2_off : begin
+                    AN = 4'b1111;
+                    SEG = SEG_LUT[11];
                 end
                 AN0_on : begin
                     AN = 4'b0111;
                     SEG = negative ? SEG_LUT[10] : SEG_LUT[11];
                 end
-                AN0_off : begin
-                    AN = 4'b0111;
-                    SEG = SEG_LUT[11];
-                end
                 AN1_on : begin
                     AN = 4'b1011;
                     SEG = SEG_LUT[hundreds];
-                end
-                AN1_off : begin
-                    AN = 4'b1011;
-                    SEG = SEG_LUT[11];
                 end
                 AN2_on : begin
                     AN = 4'b1101;
                     SEG = SEG_LUT[tens];
                 end
-                AN2_off : begin
-                    AN = 4'b1101;
-                    SEG = SEG_LUT[11];
-                end
                 AN3_on : begin
                     AN = 4'b1110;
                     SEG = SEG_LUT[ones];
+                end
+                default : begin
+                    AN = 4'b1111;
+                    SEG = SEG_LUT[11];
                 end
             endcase
         end
