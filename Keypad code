@@ -1,0 +1,97 @@
+
+
+
+module Display_block(
+        input logic clk,
+        input logic reset,
+        input logic signed [3:0] key, //3 bit input 
+    
+    
+        output logic [3:0] input_data,
+        
+        );
+        
+        
+        
+               
+        logic change_state;
+        logic [15:0] count = 0;
+        
+        logic [7:0] SEG_LUT [11:0] = {
+            
+        };
+
+        
+
+        logic [1:0] digit;
+
+        typedef enum logic [1:0] {
+            R1_on,
+            R2_on,
+            R3_on,
+            R4_on
+        }row_state;
+
+        row_state current_state, next_state;
+        
+
+        always_ff @(posedge clk) begin
+            if (reset) begin
+                current_state <= dig_off;
+            end                    
+           else begin
+                count <= count + 1;
+                current_state <= next_state;
+            end
+        end
+        
+        assign change_state = (count == '1);
+        
+        always_comb begin
+        
+            next_state = current_state;
+        
+            if (change_state) begin
+                case (current_state)
+                    dig_off : next_state = AN0_on;
+                    AN0_on : next_state = AN0_off;
+                    AN0_off : next_state = AN1_on;
+                    AN1_on : next_state = AN1_off;
+                    AN1_off : next_state = AN2_on;
+                    AN2_on : next_state = AN2_off;
+                    AN2_off : next_state = AN3_on;
+                    AN3_on : next_state = dig_off;
+                    default : next_state = dig_off;
+                endcase
+            end
+        end
+
+        always_comb begin
+            case (current_state)
+                dig_off, AN0_off, AN1_off, AN2_off : begin
+                    AN = 4'b1111;
+                    SEG = SEG_LUT[11];
+                end
+                AN0_on : begin
+                    AN = 4'b0111;
+                    SEG = negative ? SEG_LUT[10] : SEG_LUT[11];
+                end
+                AN1_on : begin
+                    AN = 4'b1011;
+                    SEG = SEG_LUT[hundreds];
+                end
+                AN2_on : begin
+                    AN = 4'b1101;
+                    SEG = SEG_LUT[tens];
+                end
+                AN3_on : begin
+                    AN = 4'b1110;
+                    SEG = SEG_LUT[ones];
+                end
+                default : begin
+                    AN = 4'b1111;
+                    SEG = SEG_LUT[11];
+                end
+            endcase
+        end
+endmodule
