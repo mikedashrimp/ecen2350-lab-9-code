@@ -51,8 +51,8 @@ module Display_block(
         
 
         always_ff @(posedge clk) begin
-            if (reset) begin
-                current_state <= dig_off;
+        //    if (reset) begin
+        //        current_state <= dig_off;
             end                    
            else begin
                 count <= count + 1;
@@ -68,38 +68,31 @@ module Display_block(
         
             if (change_state) begin
                 case (current_state)
-                    dig_off : next_state = AN0_on;
-                    AN0_on : next_state = AN0_off;
-                    AN0_off : next_state = AN1_on;
-                    AN1_on : next_state = AN1_off;
-                    AN1_off : next_state = AN2_on;
-                    AN2_on : next_state = AN2_off;
-                    AN2_off : next_state = AN3_on;
-                    AN3_on : next_state = dig_off;
-                    default : next_state = dig_off;
+                    R1_on : next_state = R2_on;
+                    R2_on : next_state = R3_on;
+                    R3_on : next_state = R4_on;
+                    R4_on : next_state = R1_on;
+                    default : ;
                 endcase
             end
         end
 
         always_comb begin
             case (current_state)
-                dig_off, AN0_off, AN1_off, AN2_off : begin
-                    AN = 4'b1111;
-                    SEG = SEG_LUT[11];
-                end
-                AN0_on : begin
+                
+                R1_on : begin
                     AN = 4'b0111;
                     SEG = negative ? SEG_LUT[10] : SEG_LUT[11];
                 end
-                AN1_on : begin
+                R2_on : begin
                     AN = 4'b1011;
                     SEG = SEG_LUT[hundreds];
                 end
-                AN2_on : begin
+                R3_on : begin
                     AN = 4'b1101;
                     SEG = SEG_LUT[tens];
                 end
-                AN3_on : begin
+                R4_on : begin
                     AN = 4'b1110;
                     SEG = SEG_LUT[ones];
                 end
