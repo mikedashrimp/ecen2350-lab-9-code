@@ -4,10 +4,13 @@
 module Display_block(
         input logic clk,
         input logic reset,
-        input logic signed [3:0] key, //3 bit input 
+
+        input logic [1:0] coulumb,
+        
+        output logic [1:0] row,
+        output logic [3:0] key_data  
     
     
-        output logic [3:0] input_data,
         
         );
         
@@ -17,7 +20,7 @@ module Display_block(
         logic change_state;
         logic [15:0] count = 0;
         
-        logic [15:0] key [3:0] = {
+        logic [15:0] key_data [3:0] = {
                 4'b0000, // 0 key (R4 C2)
                 4'b0001, // 1 key (R1 C1)
                 4'b0010, // 2 key (R1 C2)
