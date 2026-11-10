@@ -1,11 +1,11 @@
 
 
 
-module Display_block(
+module Input_block(
         input logic clk,
         input logic reset,
 
-        input logic [1:0] coulumb,
+        input logic [1:0] column,
         
         output logic [1:0] row,
         output logic [3:0] key_data  
