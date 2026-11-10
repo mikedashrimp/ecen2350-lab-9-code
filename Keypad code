@@ -18,22 +18,22 @@ module Display_block(
         logic [15:0] count = 0;
         
         logic [15:0] key [3:0] = {
-                4'b0000
-                4'b0001
-                4'b0010
-                4'b0011
-                4'b0100
-                4'b0101
-                4'b0110
-                4'b0111
-                4'b1000
-                4'b1001
-                4'b1010
-                4'b1011
-                4'b1100
-                4'b1101
-                4'b1110
-                4'b1111
+                4'b0000, // 0 key (R4 C2)
+                4'b0001, // 1 key (R1 C1)
+                4'b0010, // 2 key (R1 C2)
+                4'b0011, // 3 key (R2 C3)
+                4'b0100, // 4 key (R2 C1)
+                4'b0101, // 5 key (R2 C2)
+                4'b0110, // 6 key (R2 C3)
+                4'b0111, // 7 key (R3 C1)
+                4'b1000, // 8 key (R3 C2)
+                4'b1001, // 9 key (R3 C3)
+                4'b1010, // (R4 C1)
+                4'b1011, // (R4 C3)
+                4'b1100, // "+" key (R1 C4)
+                4'b1101, // "-" key (R2 C4)
+                4'b1110, // "*" key (R3 C4)
+                4'b1111, // "/" key (R4 C4)
         };
 
         
@@ -53,7 +53,7 @@ module Display_block(
         always_ff @(posedge clk) begin
         //    if (reset) begin
         //        current_state <= dig_off;
-            end                    
+        //    end                    
            else begin
                 count <= count + 1;
                 current_state <= next_state;
@@ -81,8 +81,7 @@ module Display_block(
             case (current_state)
                 
                 R1_on : begin
-                    AN = 4'b0111;
-                    SEG = negative ? SEG_LUT[10] : SEG_LUT[11];
+                    case:
                 end
                 R2_on : begin
                     AN = 4'b1011;
