@@ -19,9 +19,9 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module Control_block (
-    input  logic       clk,
-    input  logic       reset,
+module Calculator_top (
+    input  logic clk,
+    input  logic reset,
     input  logic [3:0] column,
     output logic [3:0] row,
     output logic [3:0] AN,
@@ -29,47 +29,47 @@ module Control_block (
 );
 
     // Internal interconnect wires
-    logic [3:0]        key_data;
-    logic              write;
-    logic [1:0]        address;
-    logic [1:0]        out_type;
+    logic [3:0] key_data;
+    logic write;
+    logic [1:0] address;
+    logic [1:0] out_type;
     logic signed [10:0] a, b, alu_result, display_num;
-    logic [1:0]        op;
+    logic [1:0] op;
 
     // 1. Keypad Scanner
     Keypad keypad_unit (
-        .clk      (clk),
-        .reset    (reset),
-        .column   (column),
-        .row      (row),
-        .key_data (key_data)
+        .clk(clk),
+        .reset(reset),
+        .column(column),
+        .row(row),
+        .key_data(key_data)
     );
 
     // 2. Calculator Control FSM (translates key presses into memory control signals)
     CalculatorControl ctrl_unit (
-        .clk      (clk),
-        .reset    (reset),
-        .column   (column),
-        .key_data (key_data),
-        .write    (write),
-        .address  (address),
-        .out_type (out_type)
+        .clk(clk),
+        .reset(reset),
+        .column(column),
+        .key_data(key_data),
+        .write(write),
+        .address(address),
+        .out_typ(out_type)
     );
 
     // 3. Memory / Registers (11-bit signed)
     memory_block #(
         .WIDTH(11)
     ) mem_unit (
-        .clk        (clk),
-        .write      (write),
-        .address    (address),
-        .data       (key_data),
-        .ALU_result (alu_result),
-        .out_type   (out_type),
-        .a          (a),
-        .b          (b),
-        .op         (op),
-        .out        (display_num)
+        .clk(clk),
+        .write(write),
+        .address(address),
+        .data(key_data),
+        .ALU_resul(alu_result),
+        .out_type(out_type),
+        .a(a),
+        .b(b),
+        .op(op),
+        .out(display_num)
     );
 
     // 4. Arithmetic Logic Unit (overridden to WIDTH = 11 to match memory & display)
@@ -84,13 +84,102 @@ module Control_block (
 
     // 5. 4-Digit 7-Segment Display Driver
     Display_block disp_unit (
-        .clk    (clk),
-        .reset  (reset),
-        .number (display_num),
-        .AN     (AN),
-        .SEG    (SEG)
+        .clk(clk),
+        .reset(reset),
+        .number(display_num),
+        .AN(AN),
+        .SEG(SEG)
     );
 
 endmodule
 
 
+module Control_block (
+    input  logic clk,
+    input  logic reset,
+    input  logic [3:0] column,
+    input logic [3:0] key_data,
+    output logic write,
+    output logic [1:0] address,
+    output logic [1:0] out_type
+    
+);
+
+    typedef enum logic [1:0] {
+            in_a,
+            in_b,
+            result
+        } input_state;
+        
+        input_state current_state, next_state;
+
+        
+    logic key_pressed;
+    logic [17:0] release_cnt; // 262,144 cycles = 1 full 4-row scan (~2.62 ms at 100 MHz)
+
+    always_ff @(posedge clk) begin
+        if (reset) begin
+            current_state       <= in_a;
+            write       <= 1'b0;
+            address     <= 2'b00;
+            out_type    <= 2'b00; // OUT_a
+            key_pressed  <= 1'b0;
+            release_cnt <= 18'd0;
+        end else begin
+            write <= 1'b0; // Default: keep write pulse to 1 clock cycle
+
+            if (!key_pressed) begin
+                // Any non-zero column bit means a button on the active row was just pressed
+                if (column != 4'b0000) begin
+                    key_pressed  <= 1'b1;
+                    release_cnt <= 18'd0;
+
+                    if (key_data <= 4'd9) begin
+                        // Digit 0-9 pressed
+                        write <= 1'b1;
+                        if (current_state == in_b) begin
+                            address  <= 2'b01; // Write digit to B
+                            out_type <= 2'b01; // Display B
+                        end else begin
+                            current_state    <= in_a;
+                            address  <= 2'b00; // Write digit to A
+                            out_type <= 2'b00; // Display A
+                        end
+                    end
+                    else if (key_data >= 4'b1100) begin
+                        // Operator (+, -, *, /) pressed
+                        write    <= 1'b1;
+                        address  <= 2'b10; // Store op
+                        out_type <= 2'b00; // Keep displaying A until B is typed
+                        current_state    <= in_b;
+                    end
+                    else if (key_data == 4'b1011) begin
+                        // '#' key pressed -> Equals (=)
+                        out_type <= 2'b11; // OUT_result
+                        current_state    <= result;
+                    end
+                    else if (key_data == 4'b1010) begin
+                        // Bottom-left '*' key pressed -> Clear (C)
+                        write    <= 1'b1;
+                        address  <= 2'b11; // Clear A, B, op
+                        out_type <= 2'b00; // Display A (0)
+                        current_state    <= in_a;
+                    end
+                end
+            end else begin
+                // Wait until no column is active across a full 4-row scan before unlocking
+                if (column == 4'b0000) begin
+                    if (release_cnt == 18'd262_143)
+                        key_pressed <= 1'b0;
+                    else
+                        release_cnt <= release_cnt + 18'd1;
+                end else begin
+                    release_cnt <= 18'd0;
+                end
+            end
+        end
+    end
+
+
+
+endmodule
