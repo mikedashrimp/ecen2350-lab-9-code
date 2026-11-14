@@ -85,10 +85,15 @@ module Input_block(
     always_ff @(posedge clk) begin
        if (reset) begin
             current_state <= R1_on;
+            prev_col <= 4'b0000;
        end                    
        else begin
             count <= count + 1;
             current_state <= next_state;
+            
+            if (column != prev_col) begin
+                prev_col <= column;
+            end
         end
     end
 
@@ -130,8 +135,7 @@ module Input_block(
                         4'b0001 : key_data = 4'b1100;  // +
                         default : key_data = 4'b0000;
                     endcase
-                    prev_col = column;
-                    end
+                end
             end
             R2_on : begin
                 row = 4'b0100;
@@ -143,7 +147,6 @@ module Input_block(
                         4'b0001 : key_data = 4'b1101;  // -
                         default : key_data = 4'b0000;
                     endcase
-                    prev_col = column;
                 end
 
             end
@@ -157,7 +160,6 @@ module Input_block(
                         4'b0001 : key_data = 4'b1110;  // * "multipication"
                         default : key_data = 4'b0000;
                     endcase
-                    prev_col = column;
                 end
 
             end
@@ -171,7 +173,6 @@ module Input_block(
                         4'b0001 : key_data = 4'b1111;  // '/'
                         default : key_data = 4'b0000;
                     endcase
-                    prev_col = column;
                 end
 
             end
