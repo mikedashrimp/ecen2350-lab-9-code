@@ -19,10 +19,12 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module ALU_block(
-    input logic [10:0] a,
-    input logic [10:0] b,
-    output logic [10:0] x,
+module ALU_block#(
+    parameter int WIDTH = 11
+)(
+    input logic signed [WIDTH-1:0] a,
+    input logic signed [WIDTH-1:0] b,
+    output logic signed [WIDTH-1:0] x,
     input logic [1:0] op
     );
     always_comb begin
@@ -33,5 +35,7 @@ module ALU_block(
             0'b11 : x = a / b;
             default : x = 0;
         endcase
+    end 
+endmodule
     end 
 endmodule
