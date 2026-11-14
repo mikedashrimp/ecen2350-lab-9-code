@@ -58,7 +58,7 @@
 
 
 
-module Input_block(
+module Keypad(
     input logic clk,
     input logic reset,
     input logic [3:0] column,
@@ -81,6 +81,9 @@ module Input_block(
     }row_state;
 
     row_state current_state, next_state;
+    
+    logic [3:0] prev_col;
+    
 
     always_ff @(posedge clk) begin
        if (reset) begin
@@ -114,13 +117,7 @@ module Input_block(
         end
     end
 
-    logic [3:0] prev_col;
-    
 
-    initial begin
-        prev_col = 4'b0000;
-            
-    end
 
     always_comb begin
         case (current_state)
