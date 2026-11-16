@@ -1,0 +1,104 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 10/17/2026 02:34:29 AM
+// Design Name: 
+// Module Name: memory inputs
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+typedef enum logic [1:0] {
+    OUT_a = 2'b00,
+    OUT_b = 2'b01,
+    OUT_op = 2'b10,
+    OUT_result = 2'b11
+}out_code;
+    
+
+//typedef enum logic [1:0] {
+//    INPUT_a = 2'b00,
+//    INPUT_b = 2'b01,
+//    INPUT_op = 2'b10,
+//    CLEAR = 2'b11
+//}address_code;
+
+
+module memory_block#(
+    parameter int WIDTH = 11 
+)
+    (
+
+        input logic clk, 
+        input logic write, 
+        input logic [1:0] address,
+        input logic [3:0] data,
+        input logic signed [WIDTH-1:0] ALU_result,
+        input logic [1:0] out_type,
+
+        output logic signed [WIDTH-1:0] a,
+        output logic signed [WIDTH-1:0] b,
+        output logic [1:0] op,
+        output logic signed [WIDTH-1:0] out
+
+    );
+
+    initial begin
+        a = 11'b00000000000;
+        b =  11'b00000000000;
+    //    out = 0;
+        op = 2'b00;
+    end
+
+    always_ff @(posedge clk) begin
+        
+        if (write == 1) begin
+            case (address)
+                2'b00: a <= (a*10)+data;
+                2'b01: b <= (b*10)+data;
+                2'b10: begin //we need to convert from our input data (the 4 bit numbers we get from the keypad) to the 2 bit definitions I set for addition, subtraction, multiplication, and division.
+                    if (data == 4'b1100) // keypad bits for addition
+                        op <= 2'b00;
+                    else if (data == 4'b1101) // kaypad bits for subtraction
+                        op <= 2'b01;
+                    else if (data == 4'b1110) // kaypad bits for multiplication
+                        op <= 2'b10;
+                    else if (data == 4'b1111) // kaypad bits for division
+                        op <= 2'b11;
+                    else ;
+                end
+                2'b11 : begin//clear everything (i think) like the C button on a normal calculator
+                    a <= '0;
+                    b <= '0;
+                    // FIX: removed "out <= '0;" here. out is already driven by the always_comb below,
+                    // and a signal can only be driven from one always block (multiple-driver error).
+                    // It still shows 0 after a clear, because out follows a, which is now 0.
+                    op <= 2'b00;
+                end
+                default : begin  // ideally this is when equil sign is pressed
+                end
+            endcase
+        end
+    end
+    always_comb begin
+        case (out_type)
+            OUT_a : out = a;
+            OUT_b : out = b;
+            OUT_op : out = op;
+            OUT_result: out = ALU_result;
+            default : out = '0;
+        endcase
+    end
+
+endmodule

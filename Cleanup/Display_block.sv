@@ -1,0 +1,171 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 10/29/2026 05:25:34 PM
+// Design Name: 
+// Module Name: Display_block
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+
+module Display_block(
+        input logic clk,
+        input logic reset,
+        input logic signed [10:0] number, //11 bit input a, b, or ALU_result
+    
+    
+        output logic [3:0] AN,
+        output logic [7:0] SEG //{A, B, C, D, E, F, G, DP}
+        );
+        
+        logic negative;
+        logic [10:0] absval_num;
+        
+        logic [3:0] hundreds;
+        logic [3:0] tens;
+        logic [3:0] ones;
+        
+        logic change_state;
+        logic [15:0] count = 0;
+
+
+
+        always_comb begin
+        if (number < 0) begin
+            negative = 1'b1;
+            absval_num = -number;
+        end
+        else begin
+            negative = 1'b0;
+            absval_num = number;
+        end
+        end
+        
+        always_comb begin
+            hundreds = (absval_num - absval_num % 100)/100; 
+            tens = (absval_num % 100 - absval_num % 10)/10;
+            ones = absval_num % 10;
+        end
+
+        logic [7:0] SEG_LUT [11:0] = '{ // FIX: unpacked arrays need the apostrophe: '{ ... } instead of { ... }
+        
+                // BEHOLD, a mark of my past pain and suffering
+//        8'b0000_0011, // display 0
+//        8'b1001_1111, // display 1
+//        8'b0010_0101, // display 2
+//        8'b0000_1101, // display 3
+//        8'b1001_1001, // display 4
+//        8'b0100_1001, // display 5
+//        8'b0100_0001, // display 6
+//        8'b0001_1111, // display 7
+//        8'b0000_0001, // display 8
+//        8'b0000_1001, // display 9
+//        8'b1111_1101, // negative sign
+//        8'b1111_1111  // blank
+
+            8'b1111_1111,  // blank
+            8'b1111_1101, // negative sign
+            8'b0000_1001, // display 9
+            8'b0000_0001, // display 8
+            8'b0001_1111, // display 7
+            8'b0100_0001, // display 6
+            8'b0100_1001, // display 5
+            8'b1001_1001, // display 4
+            8'b0000_1101, // display 3
+            8'b0010_0101, // display 2
+            8'b1001_1111, // display 1
+            8'b0000_0011 // display 0
+        };
+
+        
+
+        logic [1:0] digit;
+
+        typedef enum logic [2:0] {
+            dig_off,
+            AN0_on,
+            AN0_off,
+            AN1_on,
+            AN1_off,
+            AN2_on,
+            AN2_off,
+            AN3_on
+        }disp_state;
+
+        disp_state current_state, next_state;
+        
+
+        always_ff @(posedge clk) begin
+            if (reset) begin
+                current_state <= dig_off;
+            end                    
+           else begin
+                count <= count + 1;
+                current_state <= next_state;
+            end
+        end
+        
+        assign change_state = (count == '1);
+        
+        always_comb begin
+        
+            next_state = current_state;
+        
+            if (change_state) begin
+                case (current_state)
+                    dig_off : next_state = AN0_on;
+                    AN0_on : next_state = AN0_off;
+                    AN0_off : next_state = AN1_on;
+                    AN1_on : next_state = AN1_off;
+                    AN1_off : next_state = AN2_on;
+                    AN2_on : next_state = AN2_off;
+                    AN2_off : next_state = AN3_on;
+                    AN3_on : next_state = dig_off;
+                    default : next_state = dig_off;
+                endcase
+            end
+        end
+
+        always_comb begin
+            case (current_state)
+                dig_off, AN0_off, AN1_off, AN2_off : begin
+                    AN = 4'b1111;
+                    SEG = SEG_LUT[11];
+                end
+                AN0_on : begin
+                    AN = 4'b0111;
+                    SEG = negative ? SEG_LUT[10] : SEG_LUT[11];
+                end
+                AN1_on : begin
+                    AN = 4'b1011;
+                    SEG = SEG_LUT[hundreds];
+                end
+                AN2_on : begin
+                    AN = 4'b1101;
+                    SEG = SEG_LUT[tens];
+                end
+                AN3_on : begin
+                    AN = 4'b1110;
+                    SEG = SEG_LUT[ones];
+                end
+                default : begin
+                    AN = 4'b1111;
+                    SEG = SEG_LUT[11];
+                end
+            endcase
+        end
+endmodule
+
