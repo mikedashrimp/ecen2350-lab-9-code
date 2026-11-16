@@ -1,0 +1,39 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 10/06/2026 08:19:29 PM
+// Design Name: 
+// Module Name: ALU_IO_test
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+module ALU_block#(
+    parameter int WIDTH = 11
+)(
+    input logic signed [WIDTH-1:0] a,
+    input logic signed [WIDTH-1:0] b,
+    output logic signed [WIDTH-1:0] x,
+    input logic [1:0] op
+    );
+    always_comb begin
+        case (op)
+            2'b00 : x = a + b;
+            2'b01 : x = a - b;
+            2'b10 : x = a * b;
+            2'b11 : x = (b == 0) ? '0 : a / b; // FIX: guard against divide by zero (shows 0 instead of garbage)
+            default : x = 0;
+        endcase
+    end
+endmodule
