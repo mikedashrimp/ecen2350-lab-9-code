@@ -1,0 +1,102 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 10/21/2026 11:45:44 PM
+// Design Name: 
+// Module Name: mem_tb
+// Project Name: // Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+module mem_tb;
+
+
+    parameter int WIDTH = 11;
+
+    logic signed clk;
+    logic write; 
+    logic [1:0] address;
+    logic [3:0] data;
+    logic [WIDTH-1:0] ALU_result;
+    logic [1:0] out_type;
+    
+    logic [WIDTH-1:0] a;
+    logic [WIDTH-1:0] b;
+    logic [1:0] op;
+    
+    logic signed [WIDTH-1:0] out;
+    
+    
+//    logic [10:0] a;
+//    logic [10:0] b;
+//    logic [10:0] x;
+//    logic [1:0] op;
+
+    ALU_block dut (.a(a), .b(b), .op(op), .x(ALU_result));
+ 
+ //.a(a), .b(a), .op(op)
+
+    memory_block dit (.write(write), .address(address), .data(data), .ALU_result(ALU_result), .out_type( out_type), .out(out), .clk(clk), .a(a), .b(b), .op(op));
+    
+   
+    
+    always begin 
+        #5;
+        clk = ~clk;
+    end
+    
+    initial begin
+        clk = 1;
+        // FIX: removed "out = 0" here. out is an output of memory_block, the testbench shouldn't drive it too.
+        
+        
+        write = 1; address = 2'b00; data = 4'b1000;  
+        #10;
+        write = 1; address = 2'b10; data = 4'b1100;
+        #10;
+        write = 1; address = 2'b01; data = 4'b0100; 
+        #10;
+        write = 1; address = 2'b00; data = 4'b0010;  
+        #10;
+        write = 1; address = 2'b10; data = 4'b1111;
+        #10;
+        write = 1; address = 2'b01; data = 4'b0010; 
+        #10;
+        write = 1; address = 2'b11; data = 4'b1011;
+        #10;
+        
+        write = 1; address = 2'b00; data = 4'b1001;
+        #10;
+        write = 1; address = 2'b00; data = 4'b1001;
+        #10;
+        write = 1; address = 2'b10; data = 4'b1101; 
+        #10;
+        write = 1; address = 2'b01; data = 4'b1001;
+        #10;
+        write = 1; address = 2'b11; data = 4'b1011;
+        #10;
+        
+        write = 1; address = 2'b00; data = 4'b1000;  
+        #10;
+        write = 1; address = 2'b10; data = 4'b1110;
+        #10;
+        write = 1; address = 2'b01; data = 4'b0100; 
+        #10;
+        
+        
+        
+        $finish;
+    end
+
+endmodule
