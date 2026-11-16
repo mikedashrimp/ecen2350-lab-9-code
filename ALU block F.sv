@@ -32,7 +32,7 @@ module ALU_block#(
             2'b00 : x = a + b;
             2'b01 : x = a - b;
             2'b10 : x = a * b;
-            2'b11 : x = (b == 0) ? '0 : a / b; // FIX: guard against divide by zero (shows 0 instead of garbage)
+            2'b11 : x = (b == 0) ? '0 : a / b;
             default : x = 0;
         endcase
     end
