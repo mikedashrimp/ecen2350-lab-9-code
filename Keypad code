@@ -64,7 +64,9 @@ module Keypad(
     input logic [3:0] column,
 
     output logic [3:0] row,
-    output logic [3:0] key_data  
+    output logic [3:0] key_data,  
+    output logic [1:0] data_type, // 0 is number, 1 is operator
+    output logic [0:0] new_input
     );
 
     logic change_state;
