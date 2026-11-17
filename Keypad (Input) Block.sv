@@ -55,7 +55,7 @@
 //        4'b1111, // "/" key (R4 C4)
 // };
 
-
+//delete below comments
 // REWRITE: the keypad now does ALL of the input handling (scanning, debouncing, figuring out
 // what kind of key it was) and hands the controller a clean one-clock "new_input" pulse.
 // The controller no longer looks at the raw column pins at all.
@@ -76,12 +76,14 @@ module Keypad(
     output logic [3:0] row,
     output logic [3:0] key_data,  // held until the next key is pressed
     output logic [1:0] data_type, // 0 is number, 1 is operator, 2 is equals (#), 3 is clear (bottom-left *)
-    output logic [0:0] new_input  // high for one clock when a new key is ready
+    output logic [0:0] new_input,  // high for one clock when a new key is ready
+    
+    output logic [0:0] key_seen
     );
 
     logic change_state;
-    logic [15:0] count = 0;          // row timer (65,536 cycles = ~0.66 ms per row)
-    logic [20:0] release_cnt = 0;    // release timer (2,000,000 cycles = 20 ms)
+    logic [15:0] count;          // row timer (65,536 cycles = ~0.66 ms per row)
+    logic [20:0] release_cnt;    // release timer (2,000,000 cycles = 20 ms)
 
     typedef enum logic [2:0] {
         R1_on,
@@ -105,12 +107,15 @@ module Keypad(
         data_type = 2'b00;
     end
 
-    assign change_state = (count == '1);
+    assign change_state = (count == 16'b1111111111111111);
 
     // Is a key on the current row pressed? Only checked at the end of the row's time.
-    logic key_seen;
+    
     assign key_seen = 
-        change_state && (column != 4'b0000) && (
+//    1;
+        (count == 16'b1111111111111111) && 
+        (column != 4'b0000) && 
+        (
         current_state == R1_on || current_state == R2_on ||
         current_state == R3_on || current_state == R4_on
         );
@@ -145,7 +150,7 @@ module Keypad(
         end
     end
 
-    always_comb begin
+    always_ff @(posedge clk) begin
         next_state = current_state;
         case (current_state)
             R1_on : if (key_seen) next_state = send; else if (change_state) next_state = R2_on;
@@ -229,4 +234,3 @@ module Keypad(
             decoded_type = 2'b11; // clear (4'b1010)
     end
 endmodule
-
