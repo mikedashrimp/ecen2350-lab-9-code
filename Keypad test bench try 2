@@ -1,0 +1,86 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 11/16/2026 07:36:22 PM
+// Design Name: 
+// Module Name: keypad_old_tb
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: Synchronized testbench for Keypad module.
+//////////////////////////////////////////////////////////////////////////////////
+
+module keypad_old_tb;
+    logic        clk;
+    logic        reset;
+    logic [3:0]  column;
+    logic [3:0]  row;
+    logic [3:0]  key_data;
+    logic [1:0]  data_type; 
+    logic        new_input;  
+
+    logic        key_pressed;
+    logic [3:0]  pressed_column;
+    logic [3:0]  pressed_row; 
+
+    // Drive column only when key is pressed AND the currently scanned row matches pressed_row
+    assign column = (key_pressed && (row & pressed_row) != 4'b0000) ? pressed_column : 4'b0000;
+
+    // Instantiate DUT with fast simulation parameters so tests finish instantly
+    Keypad #(
+        .SCAN_LIMIT(16'h00FF),
+        .RELEASE_LIMIT(21'h0FFF)
+    ) dut (
+        .clk(clk),
+        .reset(reset),
+        .column(column),
+        .row(row),
+        .key_data(key_data),
+        .data_type(data_type),
+        .new_input(new_input)
+    );
+
+    // 100 MHz clock (10 ns period)
+    initial clk = 1'b0;
+    always #5 clk = ~clk;
+
+    task button_press(input [3:0] row_test, input [3:0] column_test);
+        begin
+            pressed_row    = row_test;
+            pressed_column = column_test;
+            key_pressed    = 1;
+            
+            // Hold long enough for the fast sim scan to catch it
+            #15000; 
+            
+            key_pressed    = 0;
+            
+            // Wait for release timer to finish before next press
+            #15000; 
+        end
+    endtask    
+    
+    initial begin
+        reset = 1;
+        key_pressed = 0;
+        pressed_row = 4'b0000;
+        pressed_column = 4'b0000;
+        #200;
+        reset = 0;
+        #500;
+        
+        // 1. Test Key '1' (Row 1 = 4'b1000, Col 1 = 4'b1000)
+        button_press(4'b1000, 4'b1000); 
+        
+        // 2. Test Key '5' (Row 2 = 4'b0100, Col 2 = 4'b0100)
+        button_press(4'b0100, 4'b0100); 
+
+        // 3. Test Key '#' (Row 4 = 4'b0001, Col 3 = 0010)
+        button_press(4'b0001, 4'b0010);
+        
+        #20000;
+        $finish;
+    end
+endmodule
