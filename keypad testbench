@@ -1,16 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 11/16/2026 07:36:22 PM
-// Design Name: 
-// Module Name: keypad_old_tb
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: Corrected keypad testbench with proper row mapping and timing.
-//////////////////////////////////////////////////////////////////////////////////
 
 module keypad_old_tb;
     logic clk;
@@ -38,52 +26,43 @@ module keypad_old_tb;
         .new_input(new_input)
     );
 
+    // 100 MHz clock (10 ns period)
+    initial clk = 1'b0;
+    always #5 clk = ~clk;
+
     task button_press(input [3:0] row_test, input [3:0] column_test);
         begin
             pressed_row    = row_test;
             pressed_column = column_test;
             key_pressed    = 1;
             
-            // Wait longer than 1 full scan cycle (65,535 cycles * 10ns = ~655,350ns) 
-            // so the FSM has time to reach and scan the target row.
-            #800_000; 
+            // CRITICAL: Hold for at least 3 ms so the 4-row scan cycle (~2.6 ms) 
+            // has enough time to reach your targeted row and catch the press!
+            #3_000_000; 
             
             key_pressed    = 0;
-            // Wait for release debounce timer (or a bit of time between presses)
-            #200_000; 
+            
+            // Wait for release timer to finish before next press
+            #1_000_000; 
         end
     endtask    
-
-    // 100 MHz clock (10 ns period)
-    initial clk = 1'b0;
-    always #5 clk = ~clk;
     
     initial begin
         reset = 1;
         key_pressed = 0;
         pressed_row = 4'b0000;
         pressed_column = 4'b0000;
-        #100;
+        #200;
         reset = 0;
         #1000;
         
-        // Correct row mappings based on Keypad module:
-        // Row 1 = 4'b1000
-        // Row 2 = 4'b0100
-        // Row 3 = 4'b0010
-        // Row 4 = 4'b0001
+        // Test Row 1 keys (Row 1 = 4'b1000)
+        // Press Key '1' (Row 1, Col 1 -> 4'b1000)
+        button_press(4'b1000, 4'b1000); 
         
-        // Test Row 1 keys
-        button_press(4'b1000, 4'b1000); // Key '1' (Row 1, Col 1)
-        button_press(4'b1000, 4'b0100); // Key '2' (Row 1, Col 2)
-        button_press(4'b1000, 4'b0010); // Key '3' (Row 1, Col 3)
-        button_press(4'b1000, 4'b0001); // Key '+' (Row 1, Col 4)
-        
-        // Test Row 2 keys
-        button_press(4'b0100, 4'b1000); // Key '4' (Row 2, Col 1)
-        button_press(4'b0100, 4'b0100); // Key '5' (Row 2, Col 2)
+        // Press Key '2' (Row 1, Col 2 -> 4'b0100)
+        button_press(4'b1000, 4'b0100); 
         
         $finish;
     end
-    
 endmodule
