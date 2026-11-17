@@ -78,12 +78,15 @@ module Keypad(
     output logic [1:0] data_type, // 0 is number, 1 is operator, 2 is equals (#), 3 is clear (bottom-left *)
     output logic [0:0] new_input,  // high for one clock when a new key is ready
     
-    output logic [0:0] key_seen
+    //temp outputs for testing
+    output logic [0:0] key_seen,
+    output logic [20:0] release_cnt = 0,    // release timer (2,000,000 cycles = 20 ms)
+    output logic [15:0] count = 0          // row timer (65,536 cycles = ~0.66 ms per row)
+
     );
 
     logic change_state;
-    logic [15:0] count;          // row timer (65,536 cycles = ~0.66 ms per row)
-    logic [20:0] release_cnt;    // release timer (2,000,000 cycles = 20 ms)
+    
 
     typedef enum logic [2:0] {
         R1_on,
@@ -130,9 +133,9 @@ module Keypad(
             current_state <= next_state;
 
             // Row timer: restart whenever we change state
-            if (next_state != current_state)
-                count <= 0;
-            else
+//            if (next_state != current_state)
+//                count <= 0;
+//            else
                 count <= count + 1;
 
             // Save the key the moment we find it
@@ -143,7 +146,9 @@ module Keypad(
             end
 
             // Release timer: counts how long the column has been all 0s
-            if (current_state == wait_release && column == 4'b0000)
+            if (
+//                current_state == wait_release && 
+                column == 4'b0000)
                 release_cnt <= release_cnt + 1;
             else
                 release_cnt <= 0;
@@ -234,3 +239,4 @@ module Keypad(
             decoded_type = 2'b11; // clear (4'b1010)
     end
 endmodule
+
