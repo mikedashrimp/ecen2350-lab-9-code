@@ -1,0 +1,95 @@
+//try 1
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 11/16/2026 07:36:22 PM
+// Design Name: 
+// Module Name: keypad testbench 2
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+module keypad_old_tb;
+    logic clk;
+    logic reset;
+    logic [3:0] column;
+    logic [3:0] row;
+    logic [3:0] key_data;
+    logic [1:0] data_type; // 0 is number, 1 is operator, 2 is equals (#), 3 is clear (bottom-left *)
+    logic [0:0] new_input;  // high for one clock when a new key is ready
+
+
+    logic [0:0] key_pressed;
+    logic [3:0] pressed_column;
+    logic [3:0] pressed_row; 
+
+    assign column = (key_pressed && (row & pressed_row)!= 4'b0000) ? pressed_column : 4'b0000;
+
+    Keypad dut (
+        .clk(clk),
+        .reset(reset),
+        .column(column),
+        .row(row),
+        .key_data(key_data),
+        .data_type(data_type),
+        .new_input(new_input)
+    );
+
+    task button_press(input [3:0] row_test, input [3:0] columb_test);
+        begin
+        pressed_row = row_test;
+        pressed_column = columb_test;
+        
+        key_pressed = 1;
+        #800_000;
+        
+        key_pressed = 0;
+        #200_000;
+        end
+    endtask    
+
+    // 100 MHz clock (10 ns period)
+    initial clk = 1'b0;
+    always #5 clk = ~clk;
+    
+    
+    initial begin
+//        key_pressed = 0;
+//        pressed_row = 4'b0000;
+//        pressed_column = 4'b0000;
+//        #1000;
+        
+        button_press(4'b0001, 4'b0001);
+        
+        button_press(4'b0001, 4'b0010);
+        
+        button_press(4'b0001, 4'b0100);
+        
+        button_press(4'b0001, 4'b1000);
+        
+        button_press(4'b0010, 4'b0001);
+        
+        button_press(4'b0010, 4'b0010);
+        
+        button_press(4'b0010, 4'b0100);
+        
+        button_press(4'b0010, 4'b1000);
+        
+        
+        $finish;
+    end
+    
+endmodule
+
