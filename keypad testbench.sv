@@ -35,7 +35,9 @@ module keypad_old_tb;
     logic [3:0] pressed_column;
     logic [3:0] pressed_row; 
 
-    assign column = (key_pressed && ((row & pressed_row))!= 4'b0000) ? pressed_column : 4'b0000;
+    logic key_seen;
+
+    assign column = (key_pressed && row!= 4'b0000) ? pressed_column : 4'b0000;
 
     Keypad dut (
         .clk(clk),
@@ -44,7 +46,8 @@ module keypad_old_tb;
         .row(row),
         .key_data(key_data),
         .data_type(data_type),
-        .new_input(new_input)
+        .new_input(new_input),
+        .key_seen(key_seen)
     );
 
     task button_press(input [3:0] row_test, input [3:0] columb_test);
@@ -56,7 +59,7 @@ module keypad_old_tb;
         #500_000;
         
         key_pressed = 0;
-        #500_000;
+        #1_000_000;
         end
     endtask    
 
@@ -66,10 +69,14 @@ module keypad_old_tb;
     
     
     initial begin
+    
+    //key_seen = 1;
 //        key_pressed = 0;
 //        pressed_row = 4'b0000;
 //        pressed_column = 4'b0000;
-//        #1000;
+//        #100_000;
+
+        //button_press(4'b0000, 4'b0000);
         
         button_press(4'b0001, 4'b0001);
         
