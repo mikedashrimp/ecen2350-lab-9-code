@@ -1,4 +1,3 @@
-//try 1
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
@@ -36,6 +35,8 @@ module keypad_old_tb;
     logic [3:0] pressed_row; 
 
     logic key_seen;
+    logic [20:0] release_cnt;
+    logic [15:0] count;
 
     assign column = (key_pressed && row!= 4'b0000) ? pressed_column : 4'b0000;
 
@@ -47,7 +48,9 @@ module keypad_old_tb;
         .key_data(key_data),
         .data_type(data_type),
         .new_input(new_input),
-        .key_seen(key_seen)
+        .key_seen(key_seen),
+        .release_cnt(release_cnt),
+        .count(count)
     );
 
     task button_press(input [3:0] row_test, input [3:0] columb_test);
@@ -59,7 +62,7 @@ module keypad_old_tb;
         #500_000;
         
         key_pressed = 0;
-        #1_000_000;
+        #21_500_000;
         end
     endtask    
 
@@ -69,6 +72,8 @@ module keypad_old_tb;
     
     
     initial begin
+    
+        reset = 0;
     
     //key_seen = 1;
 //        key_pressed = 0;
@@ -97,6 +102,9 @@ module keypad_old_tb;
         
         $finish;
     end
+    
+endmodule
+
     
 endmodule
 
