@@ -1,0 +1,189 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 11/13/2026 11:07:47 PM
+// Design Name: 
+// Module Name: Keypad
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: Fully parameterized Keypad scanner with sync and debouncing.
+//////////////////////////////////////////////////////////////////////////////////
+
+module Keypad #(
+    // DEFAULT: Fast values for simulation. 
+    // OVERRIDE in top-level or testbench with: .SCAN_LIMIT(16'hFFFF), .RELEASE_LIMIT(21'h1FFFFF) for hardware!
+    parameter logic [15:0] SCAN_LIMIT    = 16'h00FF, 
+    parameter logic [20:0] RELEASE_LIMIT = 21'h0FFF  
+)(
+    input  logic        clk,
+    input  logic        reset,
+    input  logic [3:0]  column,
+
+    output logic [3:0]  row,
+    output logic [3:0]  key_data,  
+    output logic [1:0]  data_type, 
+    output logic        new_input  
+    );
+
+    // 2-stage synchronizer for asynchronous column inputs
+    logic [3:0] column_sync1, column_sync2;
+    always_ff @(posedge clk) begin
+        if (reset) begin
+            column_sync1 <= 4'b0000;
+            column_sync2 <= 4'b0000;
+        end
+        else begin
+            column_sync1 <= column;
+            column_sync2 <= column_sync1;
+        end
+    end
+
+    logic        change_state;
+    logic [15:0] count;          
+    logic [20:0] release_cnt;    
+
+    typedef enum logic [2:0] {
+        R1_on,
+        R2_on,
+        R3_on,
+        R4_on,
+        send,          
+        wait_release   
+    } row_state;
+
+    row_state current_state, next_state;
+
+    logic [3:0] row_hold;   
+    logic [3:0] decoded;    
+    logic [1:0] decoded_type;
+
+    assign change_state = (count == SCAN_LIMIT);
+
+    // Is a key on the current row pressed? (Uses synchronized columns)
+    logic key_seen;
+    assign key_seen = 
+        change_state && (column_sync2 != 4'b0000) && (
+        current_state == R1_on || current_state == R2_on ||
+        current_state == R3_on || current_state == R4_on
+        );
+
+    always_ff @(posedge clk) begin
+        if (reset) begin
+            current_state <= R1_on;
+            count         <= '0;
+            release_cnt   <= '0;
+            key_data      <= 4'b0000;
+            data_type     <= 2'b00;
+            row_hold      <= 4'b0000;
+        end
+        else begin
+            current_state <= next_state;
+
+            // Row timer: restart whenever we change state
+            if (next_state != current_state)
+                count <= '0;
+            else
+                count <= count + 1'b1;
+
+            // Save the key the moment we find it
+            if (key_seen) begin
+                key_data  <= decoded;
+                data_type <= decoded_type;
+                row_hold  <= row;
+            end
+
+            // Release timer: counts how long the column has been all 0s
+            if (current_state == wait_release && column_sync2 == 4'b0000)
+                release_cnt <= release_cnt + 1'b1;
+            else
+                release_cnt <= '0;
+        end
+    end
+
+    always_comb begin
+        next_state = current_state;
+        case (current_state)
+            R1_on : if (key_seen) next_state = send; else if (change_state) next_state = R2_on;
+            R2_on : if (key_seen) next_state = send; else if (change_state) next_state = R3_on;
+            R3_on : if (key_seen) next_state = send; else if (change_state) next_state = R4_on;
+            R4_on : if (key_seen) next_state = send; else if (change_state) next_state = R1_on;
+            send  : next_state = wait_release;
+            wait_release : if (release_cnt == RELEASE_LIMIT) next_state = R1_on;
+            default : next_state = R1_on;
+        endcase
+    end
+
+    // Outputs: which row to drive, and the new_input pulse
+    always_comb begin
+        new_input = 1'b0;
+        case (current_state)
+            R1_on : row = 4'b1000;
+            R2_on : row = 4'b0100;
+            R3_on : row = 4'b0010;
+            R4_on : row = 4'b0001;
+            send  : begin
+                row = row_hold;
+                new_input = 1'b1;
+            end
+            wait_release : row = row_hold;
+            default : row = 4'b0000;
+        endcase
+    end
+
+    // Decode: using column_sync2
+    always_comb begin
+        decoded = 4'b0000;
+        case (current_state)
+            R1_on : begin
+                case (column_sync2)
+                    4'b1000 : decoded = 4'b0001;  // 1
+                    4'b0100 : decoded = 4'b0010;  // 2
+                    4'b0010 : decoded = 4'b0011;  // 3
+                    4'b0001 : decoded = 4'b1100;  // +
+                    default : decoded = 4'b0000;
+                endcase
+            end
+            R2_on : begin
+                case (column_sync2)
+                    4'b1000 : decoded = 4'b0100;  // 4
+                    4'b0100 : decoded = 4'b0101;  // 5
+                    4'b0010 : decoded = 4'b0110;  // 6
+                    4'b0001 : decoded = 4'b1101;  // -
+                    default : decoded = 4'b0000;
+                endcase
+            end
+            R3_on : begin
+                case (column_sync2)
+                    4'b1000 : decoded = 4'b0111;  // 7
+                    4'b0100 : decoded = 4'b1000;  // 8
+                    4'b0010 : decoded = 4'b1001;  // 9
+                    4'b0001 : decoded = 4'b1110;  // *
+                    default : decoded = 4'b0000;
+                endcase
+            end
+            R4_on : begin
+                case (column_sync2)
+                    4'b1000 : decoded = 4'b1010;  // clear
+                    4'b0100 : decoded = 4'b0000;  // 0
+                    4'b0010 : decoded = 4'b1011;  // # (equals)
+                    4'b0001 : decoded = 4'b1111;  // '/'
+                    default : decoded = 4'b0000;
+                endcase
+            end
+            default : decoded = 4'b0000;
+        endcase
+
+        // What kind of key is it?
+        if (decoded <= 4'd9)           
+            decoded_type = 2'b00; // number
+        else if (decoded >= 4'b1100)   
+            decoded_type = 2'b01; // operator
+        else if (decoded == 4'b1011)   
+            decoded_type = 2'b10; // equals
+        else                           
+            decoded_type = 2'b11; // clear
+    end
+endmodule
