@@ -109,9 +109,11 @@ module Keypad(
 
     // Is a key on the current row pressed? Only checked at the end of the row's time.
     logic key_seen;
-    assign key_seen = change_state && (column != 4'b0000) &&
-                      (current_state == R1_on || current_state == R2_on ||
-                       current_state == R3_on || current_state == R4_on);
+    assign key_seen = 
+        change_state && (column != 4'b0000) && (
+        current_state == R1_on || current_state == R2_on ||
+        current_state == R3_on || current_state == R4_on
+        );
 
     always_ff @(posedge clk) begin
         if (reset) begin
@@ -151,7 +153,7 @@ module Keypad(
             R3_on : if (key_seen) next_state = send; else if (change_state) next_state = R4_on;
             R4_on : if (key_seen) next_state = send; else if (change_state) next_state = R1_on;
             send  : next_state = wait_release;
-            wait_release : if (release_cnt == 21'd1_999_999) next_state = R1_on;
+            wait_release : if (release_cnt == '1) next_state = R1_on;
             default : next_state = R1_on;
         endcase
     end
