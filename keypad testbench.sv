@@ -35,7 +35,7 @@ module keypad_old_tb;
     logic [3:0] pressed_column;
     logic [3:0] pressed_row; 
 
-    assign column = (key_pressed && (row & pressed_row)!= 4'b0000) ? pressed_column : 4'b0000;
+    assign column = (key_pressed && ((row & pressed_row))!= 4'b0000) ? pressed_column : 4'b0000;
 
     Keypad dut (
         .clk(clk),
@@ -53,10 +53,10 @@ module keypad_old_tb;
         pressed_column = columb_test;
         
         key_pressed = 1;
-        #800_000;
+        #500_000;
         
         key_pressed = 0;
-        #200_000;
+        #500_000;
         end
     endtask    
 
