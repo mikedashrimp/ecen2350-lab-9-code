@@ -239,4 +239,3 @@ module Keypad(
             decoded_type = 2'b11; // clear (4'b1010)
     end
 endmodule
-
