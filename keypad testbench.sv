@@ -1,4 +1,3 @@
-//try 1
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
@@ -103,6 +102,8 @@ module keypad_old_tb;
         
         $finish;
     end
+    
+endmodule
     
 endmodule
 
