@@ -55,19 +55,6 @@
 //        4'b1111, // "/" key (R4 C4)
 // };
 
-//delete below comments
-// REWRITE: the keypad now does ALL of the input handling (scanning, debouncing, figuring out
-// what kind of key it was) and hands the controller a clean one-clock "new_input" pulse.
-// The controller no longer looks at the raw column pins at all.
-//
-// How it works:
-//   1. Scan: drive R1..R4 one at a time (same rows / timing as before).
-//   2. At the END of each row's time (so the column pins have settled), check the columns.
-//      If one is high, save the key code + type and remember which row we were on.
-//   3. send: pulse new_input for exactly one clock. key_data/data_type are already valid.
-//   4. wait_release: keep driving the pressed key's row until its column has been 0 for 20 ms,
-//      which debounces the release, so one press = one new_input.
-
 module Keypad(
     input logic clk,
     input logic reset,
@@ -80,8 +67,8 @@ module Keypad(
     
     //temp outputs for testing
     output logic [0:0] key_seen,
-    output logic [20:0] release_cnt = 0,    // release timer (2,000,000 cycles = 20 ms)
-    output logic [15:0] count = 0          // row timer (65,536 cycles = ~0.66 ms per row)
+    output logic [20:0] release_cnt = 0,    // release timer (close to 2,000,000 cycles so around 20 ms)
+    output logic [15:0] count = 0          // row timer (65,536 cycles or around 0.66 ms per row)
 
     );
 
@@ -132,11 +119,7 @@ module Keypad(
         else begin
             current_state <= next_state;
 
-            // Row timer: restart whenever we change state
-//            if (next_state != current_state)
-//                count <= 0;
-//            else
-                count <= count + 1;
+            count <= count + 1;
 
             // Save the key the moment we find it
             if (key_seen) begin
@@ -155,7 +138,8 @@ module Keypad(
         end
     end
 
-    always_ff @(posedge clk) begin
+//    always_ff @(posedge clk) begin
+    always_comb begin
         next_state = current_state;
         case (current_state)
             R1_on : if (key_seen) next_state = send; else if (change_state) next_state = R2_on;
@@ -228,7 +212,7 @@ module Keypad(
             default : decoded = 4'b0000;
         endcase
 
-        // What kind of key is it?
+        // What kind of key it is
         if (decoded <= 4'd9)           
             decoded_type = 2'b00; // number
         else if (decoded >= 4'b1100)   
