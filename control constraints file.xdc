@@ -49,3 +49,8 @@ set_property PULLTYPE PULLDOWN [get_ports {column[2]}]
 set_property PULLTYPE PULLDOWN [get_ports {column[1]}]
 set_property PULLTYPE PULLDOWN [get_ports {column[0]}]
 
+set_property IOSTANDARD LVCMOS33 [get_ports {out_type[1]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {out_type[0]}]
+set_property PACKAGE_PIN A4 [get_ports {out_type[1]}]
+set_property PACKAGE_PIN B4 [get_ports {out_type[0]}]
+
