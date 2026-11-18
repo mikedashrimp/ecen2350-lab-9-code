@@ -25,18 +25,41 @@ module Calculator_top (
     input  logic [3:0] column,
     output logic [3:0] row,
     output logic [3:0] AN,
-    output logic [7:0] SEG
-);
+    output logic [7:0] SEG,
+    output logic [1:0] out_type
+    );
 
-    // Internal interconnect wires
     logic [3:0] key_data;
     logic [1:0] data_type;
+    logic [1:0] address;
     logic new_input;
     logic write;
-    logic [1:0] address;
-    logic [1:0] out_type;
-    logic signed [10:0] a, b, alu_result, display_num;
+    
+    logic signed [10:0] a;
+    logic signed [10:0] b;
+    logic signed [10:0] alu_result;
+    logic signed [10:0] out;
     logic [1:0] op;
+    
+//    logic signed [10:0] display_num;
+    
+//    always_ff @(posedge clk) begin
+//        if (data_type == 2'b00) begin
+//            if (a) begin
+//                display_num = a;
+//            end
+//            else if (b) begin
+//                display_num = b;
+//            end
+//        end
+        
+//        else if (data_type == 2'b10) begin
+//            display_num = alu_result;
+//        end
+//        else if (data_type == 2'b01 || 2'b11) begin
+//            display_num = 11'd0;
+//        end
+//    end
 
     // 1. Keypad Scanner
     Keypad keypad_unit (
@@ -45,12 +68,11 @@ module Calculator_top (
         .column(column),
         .row(row),
         .key_data(key_data),
-        .data_type(data_type), 
+        .data_type(data_type),
         .new_input(new_input)  
     );
 
     // 2. Calculator Control FSM (translates key presses into memory control signals)
-    // FIX: module was instantiated as "CalculatorControl", but the module below is named Control_block
     Control_block ctrl_unit (
         .clk(clk),
         .reset(reset),
@@ -58,7 +80,8 @@ module Calculator_top (
         .data_type(data_type),
         .write(write),
         .address(address),
-        .out_type(out_type) 
+        .out_type(out_type)
+//        .out(out) 
     );
 
     // 3. Memory / Registers (11-bit signed)
@@ -69,12 +92,12 @@ module Calculator_top (
         .write(write),
         .address(address),
         .data(key_data),
-        .ALU_result(alu_result), // FIX: port name was misspelled ".ALU_resul"
+        .ALU_result(alu_result), 
         .out_type(out_type),
         .a(a),
         .b(b),
         .op(op),
-        .out(display_num)
+        .out(out)
     );
 
     // 4. Arithmetic Logic Unit (overridden to WIDTH = 11 to match memory & display)
@@ -91,7 +114,8 @@ module Calculator_top (
     Display_block disp_unit (
         .clk(clk),
         .reset(reset),
-        .number(display_num),
+//        .number(display_num),
+        .number(out),
         .AN(AN),
         .SEG(SEG)
     );
